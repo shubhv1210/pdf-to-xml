@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+  output          = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider     = "sqlite"
+  url          = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String        @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  conversions   Conversion[]
+  preferences   String?       // JSON string of user preferences
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("user")
+}
+
+model Account {
+  id                 String   @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  oauth_token_secret String?
+  oauth_token        String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("account")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtoken")
+}
+
+model Conversion {
+  id                String            @id @default(cuid())
+  userId            String
+  filename          String
+  originalUrl       String            // URL to the original PDF file
+  convertedXml      String            // The converted XML content
+  pageCount         Int               @default(1)
+  structureType     String            @default("enhanced")
+  detectedTables    Int               @default(0)  // Number of tables detected
+  detectedLists     Int               @default(0)  // Number of lists detected
+  detectedHeadings  Int               @default(0)  // Number of headings detected
+  detectedImages    Int               @default(0)  // Number of images detected
+  status            ConversionStatus  @default(COMPLETED)
+  processingTime    Int?              // Processing time in milliseconds
+  fileSize          Int?              // Original file size in bytes
+  tags              String?           // JSON array of tags for searching
+  metadata          String?           // JSON string of metadata from PDF
+  createdAt         DateTime          @default(now())
+  
+  // Tracking conversion statistics
+  characterCount    Int               @default(0)
+  wordCount         Int               @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("conversion")
+}
+
+enum ConversionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+} 
