@@ -145,7 +145,7 @@ The application is deployed on Vercel and is live at [https://pdf-to-xml-convert
 
 ## Support and Feedback
 
-For support or feedback, please contact the development team through the application's contact form or by email at support@pdf-to-xml.com.
+For support or feedback, please contact the development team through the application's contact form or by email at varshneyshubh361@gmail.com.
 
 ## About the Project
 
