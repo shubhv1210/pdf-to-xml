@@ -257,18 +257,18 @@ export default function Home() {
         ) : (
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/login"
+              href="/api/auth/signin"
               className="group relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium rounded-md bg-black border border-[#C0C0C0] text-[#C0C0C0] metallic-text shadow-md hover:shadow-xl transition-all duration-300"
             >
               <span className="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform translate-x-12 bg-[#D3D3D3] opacity-10 rotate-12 group-hover:-translate-x-40 ease"></span>
-              Access Portal
+              Sign In
               <FiChevronRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
               href="/register"
-              className="relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium text-[#C0C0C0] metallic-text border border-[#C0C0C0] rounded-md hover:bg-black/50 transition-all duration-300"
+              className="relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium text-white bg-gradient-to-r from-[#888888] to-[#555555] hover:from-[#999999] hover:to-[#666666] rounded-md shadow-md hover:shadow-xl transition-all duration-300"
             >
-              Create Secure Identity
+              Create Account
             </Link>
           </div>
         )}
