@@ -184,9 +184,9 @@ export default function Header() {
               >
                 <button
                   onClick={() => signIn()}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-[#A9A9A9] to-[#696969] hover:from-[#C0C0C0] hover:to-[#808080] shadow-md hover:shadow-lg transition-all"
+                  className="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-[#A9A9A9] to-[#696969] hover:from-[#C0C0C0] hover:to-[#808080] shadow-md hover:shadow-lg transition-all"
                 >
-                  Sign in
+                  Sign In
                 </button>
               </motion.div>
             )}
@@ -218,20 +218,20 @@ export default function Header() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-900 shadow-lg">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-[#1A1A1A] shadow-lg border-t border-[#333333]">
               <Link
                 href="/"
-                className="flex items-center pl-3 pr-4 py-2 text-base font-medium text-gray-200 hover:bg-gray-800 hover:text-violet-400 rounded-md"
+                className="flex items-center pl-3 pr-4 py-2 text-base font-medium text-[#D3D3D3] hover:bg-[#333333] hover:text-[#FFFFFF] rounded-md"
                 onClick={toggleMenu}
               >
                 <FiHome className="mr-2 h-5 w-5" />
                 Home
               </Link>
-              {status === "authenticated" && (
+              {status === "authenticated" ? (
                 <>
                   <Link
                     href="/convert"
-                    className="flex items-center pl-3 pr-4 py-2 text-base font-medium text-gray-200 hover:bg-gray-800 hover:text-violet-400 rounded-md"
+                    className="flex items-center pl-3 pr-4 py-2 text-base font-medium text-[#D3D3D3] hover:bg-[#333333] hover:text-[#FFFFFF] rounded-md"
                     onClick={toggleMenu}
                   >
                     <FiFileText className="mr-2 h-5 w-5" />
@@ -239,61 +239,30 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/dashboard"
-                    className="flex items-center pl-3 pr-4 py-2 text-base font-medium text-gray-200 hover:bg-gray-800 hover:text-violet-400 rounded-md"
+                    className="flex items-center pl-3 pr-4 py-2 text-base font-medium text-[#D3D3D3] hover:bg-[#333333] hover:text-[#FFFFFF] rounded-md"
                     onClick={toggleMenu}
                   >
                     <FiGrid className="mr-2 h-5 w-5" />
                     Dashboard
                   </Link>
-                </>
-              )}
-            </div>
-            <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
-              {status === "authenticated" ? (
-                <>
-                  <div className="flex items-center px-4">
-                    <div className="flex-shrink-0">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white">
-                        {session?.user?.name?.charAt(0) || "U"}
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <div className="text-base font-medium text-gray-800 dark:text-gray-200">
-                        {session?.user?.name}
-                      </div>
-                      <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        {session?.user?.email}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 space-y-1 px-2">
-                    <Link
-                      href="/profile"
-                      className="flex items-center px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-md"
-                      onClick={toggleMenu}
-                    >
-                      <FiUser className="mr-2 h-5 w-5" />
-                      Your Profile
-                    </Link>
+                  <div className="pt-2 border-t border-[#333333] mt-2">
                     <button
                       onClick={() => signOut()}
-                      className="flex w-full items-center px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-md"
+                      className="flex w-full items-center pl-3 pr-4 py-2 text-base font-medium text-[#D3D3D3] hover:bg-[#333333] hover:text-[#FFFFFF] rounded-md"
                     >
                       <FiLogOut className="mr-2 h-5 w-5" />
-                      Sign out
+                      Sign Out
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="mt-3 px-2 space-y-1">
-                  <button
-                    onClick={() => signIn()}
-                    className="flex w-full items-center px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-md"
-                  >
-                    <FiUser className="mr-2 h-5 w-5" />
-                    Sign in
-                  </button>
-                </div>
+                <button
+                  onClick={() => signIn()}
+                  className="flex w-full items-center justify-center py-3 mt-3 bg-gradient-to-r from-[#A9A9A9] to-[#696969] hover:from-[#C0C0C0] hover:to-[#808080] text-white font-medium rounded-md"
+                >
+                  <FiUser className="mr-2 h-5 w-5" />
+                  Sign In
+                </button>
               )}
             </div>
           </motion.div>

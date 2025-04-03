@@ -2,25 +2,33 @@ const { execSync } = require('child_process');
 
 console.log('Running vercel-build.js...');
 
-// Log the environment variables that will be used by Prisma
-console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Set ✓' : 'Not Set ✗');
-console.log('DIRECT_URL:', process.env.DIRECT_URL ? 'Set ✓' : 'Not Set ✗');
+// Log the environment variables
+console.log('NODE_ENV:', process.env.NODE_ENV || 'Not Set ✗');
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Set ✓' : 'Not Set ✗');
+console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL ? 'Set ✓' : 'Not Set ✗');
+console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'Set ✓' : 'Not Set ✗');
 
-// Clean any potentially cached Prisma artifacts
-try {
-  console.log('Cleaning Prisma cache...');
-  execSync('rm -rf node_modules/.prisma');
-} catch (error) {
-  console.log('Error clearing Prisma cache:', error.message);
+// If MongoDB URI isn't set, warn about it
+if (!process.env.MONGODB_URI) {
+  console.warn('WARNING: MONGODB_URI environment variable is not set. Database operations may fail.');
+  
+  // Check if .env file exists and try to load it
+  try {
+    require('dotenv').config();
+    console.log('Loaded .env file, MONGODB_URI now:', process.env.MONGODB_URI ? 'Set ✓' : 'Still not set ✗');
+  } catch (error) {
+    console.log('Could not load dotenv:', error.message);
+  }
 }
 
-// Generate Prisma client
+// Generate Prisma client if needed
 try {
   console.log('Generating Prisma client...');
   execSync('npx prisma generate', { stdio: 'inherit' });
 } catch (error) {
   console.error('Error generating Prisma client:', error.message);
-  process.exit(1);
+  // Continue despite error as we primarily use MongoDB
+  console.log('Continuing build despite Prisma errors as MongoDB is the primary database.');
 }
 
 // Build the Next.js application

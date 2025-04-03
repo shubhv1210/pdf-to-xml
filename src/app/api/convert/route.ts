@@ -1,13 +1,17 @@
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { hash } from "bcryptjs";
-import { unlink, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import os from "os";
 import path from "path";
 import PDFParser from "pdf2json";
 import { v4 as uuidv4 } from "uuid";
+
+// Use the edge runtime to increase the execution timeout
+export const maxDuration = 60;  // maximum 60 seconds for the function to run (hobby plan limit)
+export const runtime = "nodejs";
 
 // Add type augmentation for the session
 declare module "next-auth" {
@@ -58,8 +62,10 @@ type PDFData = {
 
 export async function POST(req: Request) {
   const startTime = Date.now();
+  let tempFilePath = "";
   
   try {
+    console.log("PDF conversion request received");
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
@@ -90,12 +96,14 @@ export async function POST(req: Request) {
       );
     }
     
+    console.log("Looking up user by email:", email);
     // Look up user by email
     let user = await prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) {
+      console.log("User not found in database, creating temporary user");
       // User doesn't exist in the database, create a temporary user record
       const hashedPassword = await hash("temporary-password", 10);
       const userId = session.user.id || uuidv4();
@@ -119,6 +127,7 @@ export async function POST(req: Request) {
       }
     }
 
+    console.log("Creating conversion record for user:", user.id);
     // Create a conversion record with PENDING status
     const conversionId = uuidv4();
     const fileSize = file.size;
@@ -151,8 +160,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create temporary file
-    const tempFilePath = path.join(os.tmpdir(), file.name);
+    // Create temporary file with a unique name to avoid conflicts
+    const uniqueFilename = `${Date.now()}-${fileName}`;
+    tempFilePath = path.join(os.tmpdir(), uniqueFilename);
+    console.log("Creating temporary file at:", tempFilePath);
+    
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await writeFile(tempFilePath, buffer);
@@ -163,7 +175,7 @@ export async function POST(req: Request) {
         where: { id: conversionId },
         data: { 
           status: "PROCESSING",
-          originalUrl: tempFilePath
+          originalUrl: uniqueFilename // Just store the filename, not the full path
         }
       });
       console.log("Updated conversion status to PROCESSING for ID:", conversionId);
@@ -173,6 +185,7 @@ export async function POST(req: Request) {
     }
 
     // Parse PDF to get content
+    console.log("Parsing PDF content");
     const pdfParser = new PDFParser();
     
     const pdfData = await new Promise<PDFData>((resolve, reject) => {
@@ -193,6 +206,7 @@ export async function POST(req: Request) {
     let wordCount = 0;
 
     // Generate XML based on the requested structure type
+    console.log(`Generating XML with structure type: ${structureType}`);
     let xmlContent: string;
     
     switch (structureType) {
@@ -270,9 +284,10 @@ export async function POST(req: Request) {
         },
       });
 
-      // Cleanup temp file
-      await unlink(tempFilePath).catch(() => {});
+      // No need to explicitly delete the temp file in serverless environment
+      // it will be automatically cleaned up when the function ends
 
+      console.log("Conversion completed successfully");
       return NextResponse.json({
         success: true,
         conversionId: conversion.id,

@@ -44,28 +44,51 @@ export const Conversion = mongoose.models.Conversion || mongoose.model('Conversi
 // Database connection
 const connectDB = async () => {
   try {
-    console.log('Connecting to MongoDB...');
+    // Don't attempt reconnection if we're already connected
     if (mongoose.connection.readyState === 1) {
       console.log('Already connected to MongoDB');
       return;
     }
     
+    // Check if we have connection string
+    if (!MONGODB_URI) {
+      console.error('MongoDB connection string is not provided');
+      throw new Error('MongoDB connection string is required');
+    }
+    
+    console.log('Connecting to MongoDB...');
+    
     await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 5000, // 5 seconds
     });
+    
     console.log('Successfully connected to MongoDB');
+    
+    // Add connection error handler
+    mongoose.connection.on('error', (err) => {
+      console.error('MongoDB connection error:', err);
+    });
+
+    // Add disconnect handler (useful for serverless environments)
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB disconnected');
+    });
+    
+    // Handle process termination (might not be needed in serverless, but good practice)
+    process.on('SIGINT', async () => {
+      await mongoose.connection.close();
+      process.exit(0);
+    });
   } catch (error) {
     console.error('Failed to connect to MongoDB:', error);
-    // Don't exit process on connection error
     console.warn('Continuing without MongoDB. Some features may not work properly.');
     return error;
   }
 };
 
-// Don't auto-connect on import in production
-if (process.env.NODE_ENV !== 'production') {
-  connectDB();
-}
+// Auto-connect on import - change this to connect in all environments
+// Modify this to always connect, even in production
+connectDB();
 
 // Prisma compatibility layer for existing routes
 export const prisma = {

@@ -64,6 +64,23 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center py-16 mt-16">
+      {!isAuthenticated && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-full max-w-6xl mx-auto mb-12 flex justify-center"
+        >
+          <button
+            onClick={() => window.location.href = '/api/auth/signin'}
+            className="px-10 py-4 text-xl font-medium rounded-lg text-white bg-gradient-to-r from-[#C0C0C0] to-[#696969] hover:from-[#D3D3D3] hover:to-[#808080] shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center"
+          >
+            <FiFileText className="mr-3 h-6 w-6" />
+            Sign In to Convert PDFs
+          </button>
+        </motion.div>
+      )}
+      
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
